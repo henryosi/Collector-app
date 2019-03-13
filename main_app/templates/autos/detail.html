@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Car Details</h1>
+
+<div class="card">
+  <div class="card-content">
+    <span class="card-title">{{ auto.name }}</span>
+    <p> Model: {{ auto.model }}</p>
+    <p>Description: {{ auto.description }}</p>
+    {% if auto.age > 0 %}
+      <p>Age: {{ auto.age }}</p>
+    {% else %}
+      <p>Age: Future Release </p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
