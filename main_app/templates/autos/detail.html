@@ -3,17 +3,132 @@
 
 <h1>Car Details</h1>
 
-<div class="card">
-  <div class="card-content">
-    <span class="card-title">{{ auto.name }}</span>
-    <p> Model: {{ auto.model }}</p>
-    <p>Description: {{ auto.description }}</p>
-    {% if auto.age > 0 %}
-      <p>Age: {{ auto.age }}</p>
-    {% else %}
-      <p>Age: Future Release </p>
-    {% endif %}
+<div class="row">
+  <div class="col s6">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{{ auto.name }}</span>
+        <p> Model: {{ auto.model }}</p>
+        <p>Description: {{ auto.description }}</p>
+        {% if auto.age > 0 %}
+          <p>Age: {{ auto.age }}</p>
+        {% else %}
+          <p>Age: Future Release </p>
+        {% endif %}
+      </div>
+      <div class="card-action">
+        <a href="{% url 'autos_update' auto.id %}">Edit</a>
+        <a href="{% url 'autos_delete' auto.id %}">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Insert photo markup below this comment -->
+{% for photo in auto.photo_set.all %}
+  <img class="responsive-img card-panel" src="{{photo.url}}">
+{% empty %}
+  <div class="card-panel teal-text center-align">No Photos Uploaded</div>
+{% endfor %}
+<form action="{% url 'add_photo' auto.id %}" enctype="multipart/form-data" method="POST" class="card-panel">
+  {% csrf_token %}
+  <input type="file" name="photo-file">
+  <br><br>
+  <input type="submit" class="btn" value="Upload Photo">
+</form>
+</div>
+  <div class="col s6">
+    <form action ="{% url 'add_servicing' auto.id %}" method="post">
+            {% csrf_token %}
+            {{ servicing_form.as_p }}
+            <input type="submit" class="btn" value="Add Service">
+            </form>
+    <table class="striped">
+      <thead>
+        <tr><th>Date</th><th>Services</th></tr>
+      </thead>
+      <tbody>
+        {% for servicing in auto.servicing_set.all %}
+          <tr>
+            <td>{{servicing.date}}</td>
+            <td>{{servicing.get_service_display}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 
+<hr>
+<div class="row">
+  <div class="col s6">
+    <h6>{{ auto.name }}'s Shows/Auctions </h6>
+    {% if auto.shows.count %}
+      {% for show in auto.shows.all %}
+        <div class="card">
+                    <table class="striped">
+                            <thead>
+                              <tr><th>Shows/Auctions</th><th>Dates</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                  <td>{{show.name}}</td>
+                                  <td>{{show.date}}</td>
+                                </tr>
+                            </tbody>
+                          </table>
+          <div class="card-action">
+                <form action="{% url 'unassoc_show' auto.id show.id %}" method="post">
+                    {% csrf_token %}
+                  <button type="submit" class="btn">Remove</button>
+                </form>
+              </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <h6>No Show or Auction Currently Registered :(</h6>
+    {% endif %}
+  </div>
+  <!-- Available toys will come after this line -->
+  <div class="col s6">
+        <h6>Available Shows</h6>
+        {% if shows.count %}
+          {% for show in shows.all %}
+            <div class="card">
+                                <table class="striped">
+                                        <thead>
+                                          <tr><th>Shows/Auctions</th><th>Dates</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                              <td>{{show.name}}</td>
+                                              <td>{{show.date}}</td>
+                                            </tr>
+                                        </tbody>
+                                      </table>
+              <div class="card-action">
+                <form action="{% url 'assoc_show' auto.id show.id %}" method="post">
+                    {% csrf_token %}
+                  <button type="submit" class="btn">Add</button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <h6>{{Auto.name}} Already Booked All Available Shows </h6>
+        {% endif %}
+      </div>
+</div>
+<script>
+    var dateEl = document.getElementById('id_date');
+    M.Datepicker.init(dateEl, {
+    format: 'yyyy-mm-dd',
+    defaultDate: new Date(),
+    setDefaultDate: true,
+    autoClose: true
+  });
+
+  var selectEl = document.getElementById('id_service');
+  M.FormSelect.init(selectEl);
+
+</script>
 {% endblock %}
